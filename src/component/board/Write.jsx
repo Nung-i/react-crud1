@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from "react-router-dom";
+import axios from 'axios';
 
 import { Box, TextField, Button} from '@mui/material';
 import Grid from '@mui/material/Unstable_Grid2';
@@ -33,9 +34,21 @@ function Write(){
 
 	/* 작성완료 */
 	const write_success = () => {
-		/**
-		 * 디비연결해보자
-		 */
+		let data = {title: 'dd', content: 'asdf'};
+		axios.post('http://127.0.0.1:8080/api', data)
+		.then((res) => {
+			console.log(res);
+		})
+		.catch((err) => {
+			console.log(err);
+		});
+		// axios.get('/api')
+		// .then((res) => {
+		// 	console.log(res);
+		// })
+		// .catch((err) => {
+		// 	console.log(err);
+		// });
 
 	};
 
@@ -49,12 +62,12 @@ function Write(){
 		>
 			{/* 제목 */}
 			<Grid xs display='flex' justifyContent='center'>
-				<TextField label='제목' required/>
+				<TextField name='title' label='제목' required/>
 			</Grid>
 
 			{/* 내용 */}
 			<Grid xs display='flex' justifyContent='center'>
-				<TextField label='내용' required multiline minRows='20'/>
+				<TextField name='content' label='내용' required multiline minRows='20'/>
 			</Grid>
 
 			{/* 버튼들 */}
