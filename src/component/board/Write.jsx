@@ -7,6 +7,7 @@ import Grid from '@mui/material/Unstable_Grid2';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogTitle from '@mui/material/DialogTitle';
+import serialize from 'form-serialize';
 
 function Write(){
 	const navigate = useNavigate();
@@ -22,7 +23,7 @@ function Write(){
 	/* 작성취소 => 나가기 */
 	const handle_write_cancel_dialog_ok = () => {
 		set_write_cancel_dialog_open(false);
-		navigate('/boards');
+		navigate('/boards', {replace: true});
 		
 	};
 	
@@ -33,28 +34,27 @@ function Write(){
 	};
 
 	/* 작성완료 */
-	const write_success = () => {
-		let data = {title: 'dd', content: 'asdf'};
-		axios.post('http://127.0.0.1:8080/api', data)
-		.then((res) => {
-			console.log(res);
-		})
-		.catch((err) => {
+	const write_success = async () => {
+		let data = serialize(document.querySelector('#board_form'), {hash: true, empty: true});
+
+		try{
+			const res_boards_post = await axios.post('/api/boards', data);
+
+			if( res_boards_post.data==='ok' ){
+				navigate('/boards', {replace: true});
+
+			}
+
+		}catch(err){
 			console.log(err);
-		});
-		// axios.get('/api')
-		// .then((res) => {
-		// 	console.log(res);
-		// })
-		// .catch((err) => {
-		// 	console.log(err);
-		// });
+
+		}
 
 	};
 
 	return (
 		<>
-		<Box component='form' noValidate autoComplete='off'
+		<Box component='form' noValidate autoComplete='off' id='board_form'
 			sx={{
 				'& .MuiTextField-root': {my: 1, width: '100%'},
 				paddingBottom: '20px',
