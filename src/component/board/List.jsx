@@ -105,6 +105,7 @@ function List(){
 	const [listAll, setListAll] = useState([]);
 
 	useEffect(() => {
+		console.log('page',page,'per',rowsPerPage);
 		axios.get('/api/boards', {
 			params: {
 				page: page,
@@ -144,11 +145,13 @@ function List(){
 
 	const handleChangePage = (event, newPage,) => {
 		setPage(newPage);
+
 	};
 
-	const handleChangeRowsPerPage = (event,) => {
+	const handleChangeRowsPerPage = (event) => {
 		setRowsPerPage(parseInt(event.target.value, 10));
 		setPage(0); 
+
 	};
 
 	return (

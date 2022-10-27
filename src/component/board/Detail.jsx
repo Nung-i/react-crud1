@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { useParams } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 
 import { useTheme } from '@mui/material/styles';
 import { Box, Paper } from "@mui/material";
+import { Button } from "@mui/material";
 import Grid from '@mui/material/Unstable_Grid2';
 import axios from 'axios';
 
@@ -34,8 +35,6 @@ export default function Detail(){
 
 	}, [board_seq]);
 
-	console.log(boardRow);
-
 	return (
 		<Box>
 			<Paper style={{minHeight: '600px', padding: '5px 15px'}}>
@@ -56,6 +55,9 @@ export default function Detail(){
 					: <><Grid style={{marginTop: '15px'}}><Grid>존재하지 않거나, 삭제된 게시물입니다.</Grid></Grid></>
 				}
 			</Paper>
+			<Grid xs display='flex' justifyContent='right' sx={{mt:'10px'}}>
+				<Button component={Link} to={'/boards'} variant='contained' sx={{width:'10%'}}>목록</Button>
+			</Grid>
 		</Box>
 	);
 }
