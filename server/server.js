@@ -27,32 +27,36 @@ app.use(express.static(path.join(react_build_path, '')));
 app.use(express.json());
 app.use(cors());
 
+
+/**
+ * 게시판 관련
+ */
+app.route('/api/boards')
+.get((req, res) => {
+	const boards_proc = require('./proc/boards_proc');
+	boards_proc.boards_all(req.query, res);
+
+})
+.post((req, res) => {
+	const boards_proc = require('./proc/boards_proc');
+	let a = boards_proc.board_insert(req.body);
+
+	// res.send('ok');
+	res.send(a);
+
+});
+app.get('/api/boards/:board_seq', (req, res) => {
+	const boards_proc = require('./proc/boards_proc');
+	boards_proc.boards_row(req.params, res);
+
+});
+
+
 /**
  * 가장 하단에 있을 것
  * '*' 이거는 리액트에게 라우팅 전권을 넘긴다는 뜻.
  */
 app.get('*', (req, res) => {
-	switch(req.path){
-		case '/api/boards': 	// 목록가져오기
-			const boards_proc = require('./proc/boards_proc');
-			boards_proc.boards_all(req.query, res);
-
-			break;
-
-		default :
-			res.sendFile(path.join(react_build_path, '/index.html'))
-			break;
-
-	}
+	res.sendFile(path.join(react_build_path, '/index.html'))
 
 });
-
-app.route('/api/boards')
-	.post((req, res) => {
-		const boards_proc = require('./proc/boards_proc');
-		let a = boards_proc.board_insert(req.body);
-
-		// res.send('ok');
-		res.send(a);
-
-	});

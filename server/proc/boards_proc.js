@@ -54,18 +54,26 @@ async function board_insert(data){
  * @param {*} data 
  */
 async function boards_all(data, rrrr){
-	// const page = Number(data.page) || 1;
-	// const row_num = 10;
+	const chinook_conn = db_connect();
 
-	// let limit = `LIMIT ${(page-1)*row_num}, ${row_num}`;
+	let promise1 = await new Promise((resolve, reject) => {
+		let boards_cnt_sql = `SELECT COUNT(*) AS cnt FROM boards`;
+		chinook_conn.get(boards_cnt_sql, function(err, row){
+			if(err){
+				reject(err);
+			}
+
+			resolve(row.cnt);
+	
+		});
+
+	});
 
 	let promise = await new Promise((resolve, reject) => {
-		const page = Number(data.page) || 1;
-		const row_num = 10;
+		const page = Number(data.page) || 0;
+		const row_num = Number(data.row_per_page) || 10;
 
-		let limit = `LIMIT ${(page-1)*row_num}, ${row_num}`;
-
-		const chinook_conn = db_connect();
+		let limit = `LIMIT ${(page)*row_num}, ${row_num}`;
 
 		let boards_all_sql = `SELECT * FROM boards ${limit}`;
 		chinook_conn.all(boards_all_sql, function(err, rows){
@@ -77,9 +85,12 @@ async function boards_all(data, rrrr){
 	
 		});
 
-		db_close(chinook_conn);
-
+		
 	});
+
+	db_close(chinook_conn);
+
+	const total_cnt = promise1;
 
 	const boards_data = [];
 	promise.forEach((v, i, array) => {
@@ -95,9 +106,41 @@ async function boards_all(data, rrrr){
 
 	});
 
-	rrrr.send(boards_data);
+	rrrr.send({
+		total_cnt: total_cnt,
+		list: boards_data,
+	});
 
 	// return promise;
+
+}
+
+async function boards_row(data, rrrr){
+	const board_seq = Number(data.board_seq) || null;
+
+	let promise = null;
+
+	if( board_seq ){
+		const chinook_conn = db_connect();
+	
+		promise = await new Promise((resolve, reject) => {
+			let boards_row_sql = `SELECT * FROM boards WHERE seq = ${board_seq}`;
+			chinook_conn.get(boards_row_sql, function(err, row){
+				if(err){
+					reject(err);
+				}
+				
+				resolve(row);
+		
+			});
+	
+		});
+	
+		db_close(chinook_conn);
+
+	}
+
+	rrrr.send(promise);
 
 }
 
@@ -168,3 +211,4 @@ function db_close(db){
 
 module.exports.board_insert = board_insert;
 module.exports.boards_all = boards_all;
+module.exports.boards_row = boards_row;
