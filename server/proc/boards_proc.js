@@ -1,7 +1,6 @@
 const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
 const dayjs = require('dayjs');
-const { ConnectingAirportsOutlined } = require('@mui/icons-material');
 
 const dayjs1 = dayjs();
 

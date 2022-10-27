@@ -12,7 +12,7 @@ import { Button, IconButton } from "@mui/material";
 import FirstPageIcon from "@mui/icons-material/FirstPage";
 import LastPageIcon from "@mui/icons-material/LastPage";
 import { KeyboardArrowLeft, KeyboardArrowRight } from "@mui/icons-material";
-
+import { CircularProgress } from "@mui/material/";
 
 
 /**
@@ -98,36 +98,56 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
 	},
 }));
 
+const getBoardsList = (page, rowsPerPage, setListCnt, setListAll, setIsListLoading) => {
+	const axios_instance = axios.create({
+		baseURL: 'http://127.0.0.1:8080',
+	});
+
+	axios_instance.interceptors.request.use(function(config){
+		setIsListLoading(true);
+		return config;
+	}, function(error){
+		return Promise.reject(error);
+	});
+
+	axios_instance.get('/api/boards', {
+		params: {
+			page: page,
+			row_per_page: rowsPerPage,
+		},
+		baseURL: 'http://127.0.0.1:8080',
+	})
+	.then((res) => { 	// 성공
+		setTimeout(() => {
+			setIsListLoading(false);
+			setListCnt(res.data.total_cnt);
+			setListAll(res.data.list);
+			
+		}, 500);
+
+	})
+	.catch((err) => { 	// 에러
+		console.log(err);
+	})
+	.then(() => { 	// 항상
+
+	});
+
+	return() => { 	// 페이지 나갈 때
+
+	};
+
+}
+
 function List(){
 	const [page, setPage] = useState(0);
 	const [rowsPerPage, setRowsPerPage] = React.useState(10);
 	const [listCnt, setListCnt] = useState(0);
 	const [listAll, setListAll] = useState([]);
+	const [isListLoding, setIsListLoading] = useState(true);
 
 	useEffect(() => {
-		console.log('page',page,'per',rowsPerPage);
-		axios.get('/api/boards', {
-			params: {
-				page: page,
-				row_per_page: rowsPerPage,
-			},
-			baseURL: 'http://127.0.0.1:8080',
-		})
-		.then((res) => { 	// 성공
-			setListCnt(res.data.total_cnt);
-			setListAll(res.data.list);
-
-		})
-		.catch((err) => { 	// 에러
-			console.log(err);
-		})
-		.then(() => { 	// 항상
-
-		});
-
-		return() => { 	// 페이지 나갈 때
-
-		};
+		getBoardsList(page, rowsPerPage, setListCnt, setListAll, setIsListLoading);
 
 	}, [page, rowsPerPage]);
 
@@ -171,7 +191,13 @@ function List(){
 							</TableRow>
 						</TableHead>
 						<TableBody>
-						{listAll.map((list_row, list_index) => (
+						{
+							isListLoding && 
+							<StyledTableRow key='1'>
+								<TableCell align='center' colSpan={4} style={{padding:'242px'}}><CircularProgress color='primary'/></TableCell>
+							</StyledTableRow>
+						}
+						{!isListLoding && listAll.map((list_row, list_index) => (
 							<StyledTableRow key={list_row.id} onClick={goBoard.bind(this, list_row.id)}>
 								<TableCell align='center'>{list_row.제목}</TableCell>
 								<TableCell align='center'>{list_row.작성자}</TableCell>
